@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cofre del Tesoro con Candado</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f5e8c9;
+            margin: 0;
+            flex-direction: column;
+            background-image: radial-gradient(circle, #f5e8c9 0%, #e0c9a6 100%);
+        }
+        
+        .container {
+            text-align: center;
+            perspective: 1000px;
+        }
+        
+        h1 {
+            color: #5c3a21;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+        
+        .treasure-chest {
+            position: relative;
+            width: 300px;
+            height: 180px;
+            background-color: #b87333;
+            border-radius: 10px;
+            margin: 0 auto 40px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            transform-style: preserve-3d;
+            transition: transform 1.5s ease-in-out;
+            transform-origin: left center;
+        }
+        
+        .chest-lid {
+            position: absolute;
+            width: 100%;
+            height: 30px;
+            background-color: #a05c2b;
+            top: 0;
+            border-radius: 10px 10px 0 0;
+            transform-origin: 0 0;
+            transition: transform 1.5s ease-in-out;
+        }
+        
+        .chest-body {
+            position: absolute;
+            width: 100%;
+            height: 150px;
+            background-color: #b87333;
+            top: 30px;
+            border-radius: 0 0 10px 10px;
+        }
+        
+        .chest-decoration {
+            position: absolute;
+            width: 90%;
+            height: 20px;
+            background-color: #8b4513;
+            top: 15px;
+            left: 5%;
+            border-radius: 5px;
+        }
+        
+        .chest-lock {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 50px;
+            background-color: #333;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .number-wheel {
+            position: relative;
+            width: 30px;
+            height: 40px;
+            background-color: #555;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .number-digit {
+            position: absolute;
+            width: 100%;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: gold;
+            user-select: none;
+            transition: transform 0.3s ease-out;
+        }
+        
+        .wheel-control {
+            position: absolute;
+            width: 100%;
+            height: 20px;
+            cursor: pointer;
+            z-index: 2;
+        }
+        
+        .wheel-up {
+            top: 0;
+        }
+        
+        .wheel-down {
+            bottom: 0;
+        }
+        
+        .wheel-control:hover {
+            background-color: rgba(255, 215, 0, 0.2);
+        }
+        
+        .open-btn {
+            margin-top: 30px;
+            padding: 12px 30px;
+            font-size: 18px;
+            background-color: #5c3a21;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .open-btn:hover {
+            background-color: #8b4513;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+        
+        .open-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .message {
+            margin-top: 30px;
+            padding: 15px;
+            font-size: 18px;
+            color: #5c3a21;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 5px;
+            max-width: 300px;
+            opacity: 0;
+            transition: opacity 0.5s;
+            transform: translateY(20px);
+        }
+        
+        .visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .chest-open {
+            transform: rotateY(-75deg);
+        }
+        
+        .lid-open {
+            transform: rotateX(-110deg);
+        }
+        
+        .metal-band {
+            position: absolute;
+            width: 100%;
+            height: 10px;
+            background-color: #c0c0c0;
+            top: 50px;
+        }
+        
+        .lock-hook {
+            position: absolute;
+            width: 15px;
+            height: 25px;
+            background-color: #555;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 5px 5px 0 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container"  style="display: flex; align-items: center; justify-content: center; flex-direction: column;">
+        <h1>Cofre del Tesoro</h1>
+        <p>Gira los números del candado para encontrar la combinación correcta</p>
+        
+        <div class="treasure-chest" id="treasureChest" style="margin-top: 50px;">
+            <div class="chest-lid" id="chestLid">
+                <div class="lock-hook"></div>
+                <div class="chest-decoration"></div>
+            </div>
+            <div class="chest-body">
+                <div class="metal-band"></div>
+                <div class="chest-decoration" style="top: 100px;"></div>
+            </div>
+            <div class="chest-lock">
+                <div class="number-wheel">
+                    <div class="wheel-control wheel-up" onclick="changeNumber(0, 1)"></div>
+                    <div class="number-digit" id="digit0">0</div>
+                    <div class="wheel-control wheel-down" onclick="changeNumber(0, -1)"></div>
+                </div>
+                <div class="number-wheel">
+                    <div class="wheel-control wheel-up" onclick="changeNumber(1, 1)"></div>
+                    <div class="number-digit" id="digit1">0</div>
+                    <div class="wheel-control wheel-down" onclick="changeNumber(1, -1)"></div>
+                </div>
+                <div class="number-wheel">
+                    <div class="wheel-control wheel-up" onclick="changeNumber(2, 1)"></div>
+                    <div class="number-digit" id="digit2">0</div>
+                    <div class="wheel-control wheel-down" onclick="changeNumber(2, -1)"></div>
+                </div>
+                <div class="number-wheel">
+                    <div class="wheel-control wheel-up" onclick="changeNumber(3, 1)"></div>
+                    <div class="number-digit" id="digit3">0</div>
+                    <div class="wheel-control wheel-down" onclick="changeNumber(3, -1)"></div>
+                </div>
+            </div>
+        </div>
+        
+        <button class="open-btn" onclick="tryToOpen()">Abrir Cofre</button>
+        
+        <div class="message" id="message"></div>
+    </div>
+
+    <script>
+        const correctCode = [8, 2, 1, 0]; // Código correcto: 8210
+        let currentCode = [0, 0, 0, 0];
+        const digits = [
+            document.getElementById("digit0"),
+            document.getElementById("digit1"),
+            document.getElementById("digit2"),
+            document.getElementById("digit3")
+        ];
+        const treasureChest = document.getElementById("treasureChest");
+        const chestLid = document.getElementById("chestLid");
+        const message = document.getElementById("message");
+        
+        function changeNumber(position, direction) {
+            currentCode[position] += direction;
+            
+            // Asegurarse de que el número esté entre 0 y 9
+            if (currentCode[position] > 9) currentCode[position] = 0;
+            if (currentCode[position] < 0) currentCode[position] = 9;
+            
+            // Actualizar visualización con animación
+            digits[position].style.transform = `translateY(${direction > 0 ? '-' : ''}10px)`;
+            digits[position].textContent = currentCode[position];
+            
+            setTimeout(() => {
+                digits[position].style.transform = 'translateY(0)';
+            }, 300);
+        }
+        
+        function tryToOpen() {
+            let isCorrect = true;
+            
+            // Verificar cada dígito
+            for (let i = 0; i < 4; i++) {
+                if (currentCode[i] !== correctCode[i]) {
+                    isCorrect = false;
+                    break;
+                }
+            }
+            
+            if (isCorrect) {
+                // Código correcto - abrir cofre
+                treasureChest.classList.add("chest-open");
+                chestLid.classList.add("lid-open");
+                
+                // Mostrar mensaje de éxito
+                message.textContent = "¡Terminaste la primera parte! ¿Estás listo para lo demás?";
+                message.classList.add("visible");
+                
+                // Deshabilitar botón
+                document.querySelector('.open-btn').disabled = true;
+            } else {
+                // Código incorrecto - animación de rechazo
+                treasureChest.style.animation = 'shake 0.5s';
+                message.textContent = "¡Código incorrecto! Sigue intentando...";
+                message.classList.add("visible");
+                
+                setTimeout(() => {
+                    treasureChest.style.animation = '';
+                    message.classList.remove("visible");
+                }, 2000);
+            }
+        }
+        
+        // Agregar animación de shake dinámicamente
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0) rotateY(0); }
+                20% { transform: translateX(-10px) rotateY(-5deg); }
+                40% { transform: translateX(10px) rotateY(5deg); }
+                60% { transform: translateX(-10px) rotateY(-5deg); }
+                80% { transform: translateX(10px) rotateY(5deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
